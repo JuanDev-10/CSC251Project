@@ -7,10 +7,9 @@ public class PolicyHolder
     private String firstName;
     private String lastName;
     private int age;
-    // Store original Y/N or text form, but interpret it in methods.
-    private String smokingStatus;
-    private double height; // in inches
-    private double weight; // in pounds
+    private String smokingStatus;  // "smoker" or "non-smoker"
+    private double height;         // in inches
+    private double weight;         // in pounds
 
     /**
      * No-arg constructor.
@@ -20,7 +19,7 @@ public class PolicyHolder
         firstName = "";
         lastName = "";
         age = 0;
-        smokingStatus = "N";
+        smokingStatus = "non-smoker";
         height = 0.0;
         weight = 0.0;
     }
@@ -53,113 +52,51 @@ public class PolicyHolder
     }
 
     // Getters and setters
-    public String getFirstName()
-    {
-        return firstName;
-    }
 
-    public void setFirstName(String firstName)
-    {
-        this.firstName = firstName;
-    }
+    public String getFirstName() { return firstName; }
 
-    public String getLastName()
-    {
-        return lastName;
-    }
+    public String getLastName() { return lastName; }
 
-    public void setLastName(String lastName)
-    {
-        this.lastName = lastName;
-    }
+    public int getAge() { return age; }
 
-    public int getAge()
-    {
-        return age;
-    }
+    public String getSmokingStatus() { return smokingStatus; }
 
-    public void setAge(int age)
-    {
-        this.age = age;
-    }
+    public double getHeight() { return height; }
 
-    public String getSmokingStatus()
-    {
-        return smokingStatus;
-    }
+    public double getWeight() { return weight; }
 
-    public void setSmokingStatus(String smokingStatus)
-    {
-        this.smokingStatus = smokingStatus;
-    }
-
-    public double getHeight()
-    {
-        return height;
-    }
-
-    public void setHeight(double height)
-    {
-        this.height = height;
-    }
-
-    public double getWeight()
-    {
-        return weight;
-    }
-
-    public void setWeight(double weight)
-    {
-        this.weight = weight;
-    }
-
-    /**
-     * Returns true if this PolicyHolder is a smoker.
-     */
     public boolean isSmoker()
     {
-        // Accept "Y", "y", "smoker", etc.
-        String s = smokingStatus.toLowerCase();
-        return s.startsWith("y") || s.equals("smoker");
+        return smokingStatus.equalsIgnoreCase("smoker");
     }
 
     /**
-     * Computes BMI using the standard formula:
-     * BMI = (weight * 703) / (height^2)
+     * Computes BMI.
      */
     public double getBMI()
     {
         if (height == 0)
-        {
             return 0;
-        }
+
         return (weight * 703) / (height * height);
     }
 
-    /**
-     * Returns a description for smoking status:
-     * "smoker" or "non-smoker".
-     */
     private String getSmokingDescription()
     {
         return isSmoker() ? "smoker" : "non-smoker";
     }
 
     /**
-     * toString that outputs the PolicyHolder information.
+     * toString for PolicyHolder info.
      */
     public String toString()
     {
-        String str = "";
-
-        str += "Policyholder's First Name: " + firstName + "\n";
-        str += "Policyholder's Last Name: " + lastName + "\n";
-        str += "Policyholder's Age: " + age + "\n";
-        str += "Policyholder's Smoking Status (Y/N): " + getSmokingDescription() + "\n";
-        str += "Policyholder's Height: " + height + " inches\n";
-        str += "Policyholder's Weight: " + weight + " pounds\n";
-        str += String.format("Policyholder's BMI: %.2f\n", getBMI());
-
-        return str;
+        return  "Policyholder's First Name: " + firstName +
+                "\n\nPolicyholder's Last Name: " + lastName +
+                "\n\nPolicyholder's Age: " + age +
+                "\n\nPolicyholder's Smoking Status (Y/N): " + getSmokingDescription() +
+                "\n\nPolicyholder's Height: " + String.format("%.1f", height) + " inches" +
+                "\n\nPolicyholder's Weight: " + String.format("%.1f", weight) + " pounds" +
+                "\n\nPolicyholder's BMI: " + String.format("%.2f", getBMI());
     }
 }
