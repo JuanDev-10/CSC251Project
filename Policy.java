@@ -1,132 +1,101 @@
-// Policy.java
+// PolicyDemo.java
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.util.ArrayList;
+import java.util.Locale;
+import java.util.Scanner;
+
 /**
- * Represents an insurance policy and provides utilities to compute BMI and price.
+ * Demo program for Project 3:
+ * Reads policy records from PolicyInformation.txt (8 lines per policy, blank lines allowed between records),
+ * stores them in an ArrayList, prints each policy, and totals smokers vs non-smokers.
+ * Also displays the number of Policy objects created.
  */
-public class Policy {
-    private int policyNumber;
-    private String providerName;
-    private String policyHolderFirstName;
-    private String policyHolderLastName;
-    private int policyHolderAge;
-    private String policyHolderSmokingStatus; // "smoker" or "non-smoker"
-    private double policyHolderHeight;        // inches
-    private double policyHolderWeight;        // pounds
+public class PolicyDemo {
 
-    /**
-     * No-arg constructor that initializes a default policy.
-     */
-    public Policy() {
-        this(0, "Unknown", "John", "Doe", 0, "non-smoker", 65.0, 150.0);
+    public static void main(String[] args) {
+        Locale.setDefault(Locale.US);
+
+        final String FILE_NAME = "PolicyInformation.txt";
+        ArrayList<Policy> policies = new ArrayList<>();
+
+        try (Scanner file = new Scanner(new File(FILE_NAME))) {
+            while (true) {
+                String line1 = nextNonEmptyLine(file);
+                if (line1 == null) break; // no more records
+
+                String line2 = nextNonEmptyLine(file);
+                String line3 = nextNonEmptyLine(file);
+                String line4 = nextNonEmptyLine(file);
+                String line5 = nextNonEmptyLine(file);
+                String line6 = nextNonEmptyLine(file);
+                String line7 = nextNonEmptyLine(file);
+                String line8 = nextNonEmptyLine(file);
+
+                if (line2 == null || line3 == null || line4 == null || line5 == null
+                        || line6 == null || line7 == null || line8 == null) {
+                    System.err.println("Warning: Incomplete policy record encountered. Skipping the remainder.");
+                    break;
+                }
+
+                int policyNumber = Integer.parseInt(line1.trim());
+                String providerName = line2.trim();
+                String firstName = line3.trim();
+                String lastName = line4.trim();
+                int age = Integer.parseInt(line5.trim());
+                String smokingStatus = line6.trim(); // "smoker" or "non-smoker"
+                double height = Double.parseDouble(line7.trim());
+                double weight = Double.parseDouble(line8.trim());
+
+                // Create PolicyHolder and then Policy (class collaboration)
+                PolicyHolder holder = new PolicyHolder(firstName, lastName, age,
+                                                      smokingStatus, height, weight);
+
+                Policy policy = new Policy(policyNumber, providerName, holder);
+                policies.add(policy);
+            }
+        } catch (FileNotFoundException e) {
+            System.err.println("Error: Could not find " + FILE_NAME + " in the project folder.");
+            return;
+        } catch (NumberFormatException e) {
+            System.err.println("Error: Invalid number in " + FILE_NAME + ". " + e.getMessage());
+            return;
+        }
+
+        // Display each policy's information (implicitly calls toString)
+        for (Policy p : policies) {
+            System.out.println(p);
+            System.out.println(); // blank line between policies
+        }
+
+        // Count smokers vs non-smokers
+        int smokers = 0, nonSmokers = 0;
+        for (Policy p : policies) {
+            PolicyHolder h = p.getPolicyHolder(); // returns a copy
+            if (h.isSmoker()) {
+                smokers++;
+            } else {
+                nonSmokers++;
+            }
+        }
+
+        // Summary output
+        System.out.println("There were " + Policy.getPolicyCount() + " Policy objects created.");
+        System.out.println("\nThe number of policies with a smoker is: " + smokers);
+        System.out.println("\nThe number of policies with a non-smoker is: " + nonSmokers);
     }
 
     /**
-     * Constructs a Policy with all attributes specified.
+     * Returns the next non-empty line from the scanner, or null if no more lines exist.
      *
-     * @param policyNumber the policy number
-     * @param providerName the provider/company name
-     * @param firstName    policyholder's first name
-     * @param lastName     policyholder's last name
-     * @param age          policyholder's age in years
-     * @param smokingStatus "smoker" or "non-smoker"
-     * @param height       policyholder's height in inches
-     * @param weight       policyholder's weight in pounds
+     * @param sc the Scanner reading the file
+     * @return the next non-empty trimmed line, or null if EOF
      */
-    public Policy(int policyNumber, String providerName, String firstName, String lastName,
-                  int age, String smokingStatus, double height, double weight) {
-        this.policyNumber = policyNumber;
-        this.providerName = providerName;
-        this.policyHolderFirstName = firstName;
-        this.policyHolderLastName = lastName;
-        this.policyHolderAge = age;
-        this.policyHolderSmokingStatus = smokingStatus;
-        this.policyHolderHeight = height;
-        this.policyHolderWeight = weight;
-    }
-
-    /** @return the policy number */
-    public int getPolicyNumber() {
-        return policyNumber;
-    }
-
-    /** @return the provider/company name */
-    public String getProviderName() {
-        return providerName;
-    }
-
-    /** @return policyholder first name */
-    public String getPolicyHolderFirstName() {
-        return policyHolderFirstName;
-    }
-
-    /** @return policyholder last name */
-    public String getPolicyHolderLastName() {
-        return policyHolderLastName;
-    }
-
-    /** @return policyholder age */
-    public int getPolicyHolderAge() {
-        return policyHolderAge;
-    }
-
-    /** @return "smoker" or "non-smoker" */
-    public String getPolicyHolderSmokingStatus() {
-        return policyHolderSmokingStatus;
-    }
-
-    /** @return height in inches */
-    public double getPolicyHolderHeight() {
-        return policyHolderHeight;
-    }
-
-    /** @return weight in pounds */
-    public double getPolicyHolderWeight() {
-        return policyHolderWeight;
-    }
-
-    /**
-     * Calculates Body Mass Index (BMI) using U.S. customary units.
-     * Formula: BMI = (weight * 703) / (height^2)
-     *
-     * @return the BMI as a double
-     */
-    public double calculateBMI() {
-        return (policyHolderWeight * 703) / (policyHolderHeight * policyHolderHeight);
-    }
-
-    /**
-     * Calculates the policy price based on age, smoking status, and BMI.
-     * Base price: $600
-     * + $75 if age > 50
-     * + $100 if smoker
-     * + $20 for each BMI point above 35 (fractional points prorated)
-     *
-     * @return the computed policy price
-     */
-    public double calculatePolicyPrice() {
-        double price = 600.0;
-        if (policyHolderAge > 50) price += 75;
-        if (policyHolderSmokingStatus.equalsIgnoreCase("smoker")) price += 100;
-        double bmi = calculateBMI();
-        if (bmi > 35) price += (bmi - 35) * 20;
-        return price;
-    }
-
-    /**
-     * Returns a formatted, multi-line String with the policy's details.
-     *
-     * @return string describing the policy
-     */
-    @Override
-    public String toString() {
-        return "Policy Number: " + policyNumber +
-               "\n\nProvider Name: " + providerName +
-               "\n\nPolicyholder's First Name: " + policyHolderFirstName +
-               "\n\nPolicyholder's Last Name: " + policyHolderLastName +
-               "\n\nPolicyholder's Age: " + policyHolderAge +
-               "\n\nPolicyholder's Smoking Status (smoker/non-smoker): " + policyHolderSmokingStatus +
-               "\n\nPolicyholder's Height: " + String.format("%.1f", policyHolderHeight) + " inches" +
-               "\n\nPolicyholder's Weight: " + String.format("%.1f", policyHolderWeight) + " pounds" +
-               "\n\nPolicyholder's BMI: " + String.format("%.2f", calculateBMI()) +
-               "\n\nPolicy Price: $" + String.format("%.2f", calculatePolicyPrice());
+    private static String nextNonEmptyLine(Scanner sc) {
+        while (sc.hasNextLine()) {
+            String line = sc.nextLine().trim();
+            if (!line.isEmpty()) return line;
+        }
+        return null;
     }
 }
